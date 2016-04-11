@@ -5,18 +5,16 @@ from lxml import etree
 #from xml.etree import ElementTree as ET
 import requests
 
+#function to save to file
 def saveToFile(xml, filename):
 	f = open(filename+".xml", 'w')
 	f.write(xml)
 	f.close()
 
 
-
+#fetch html page
 page = requests.get('http://stackoverflow.com/questions/138175/dotnetnuke-vulnerabilities')
 tree = html.fromstring(page.content)
-content=tree.xpath('//title/text()')
-print(content)
-
 
 
 # create basic POS XML structure
@@ -26,8 +24,11 @@ teiHeader = etree.SubElement(TEI,'teiHeader')
 fileDesc = etree.SubElement(teiHeader,'fileDesc')
 titleStmt = etree.SubElement(fileDesc, 'titleStmt')
 title = etree.SubElement(titleStmt,'title')
-title.text = content[0]
-#author = etree.SubElement(titleStmt,tree.xpath(".//div[@class='user-details']/text()")[0])
+#title.text = tree.xpath('//title/text()')[0]
+title.text = tree.xpath(".//h1[@itemprop='name']//a[@class='question-hyperlink']/text()")[0]
+author = etree.SubElement(titleStmt,'author')
+author.text = tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/a/text()")[0]
+
 
 # pretty string
 s = etree.tostring(TEI,pretty_print=True)
