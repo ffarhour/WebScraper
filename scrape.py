@@ -1,6 +1,11 @@
 from lxml import html
 from lxml import etree
 import requests
+#from urlparse import urlparse #to parse root urls
+
+
+global g_xml_namespace
+g_xml_namespace = "http://www.w3.org/XML/1998/namespace"
 
 #function to save to file
 def saveToFile(xml, filename):
@@ -11,10 +16,14 @@ def saveToFile(xml, filename):
 def getHtml(url):
 	page = requests.get(url)
 	tree = html.fromstring(page.content)
+	tree.make_links_absolute(url,resolve_base_href=True)
 	return tree
 
 #fetch html page
 url = raw_input("Please enter the url to the site: \n") or "http://stackoverflow.com/questions/138175/dotnetnuke-vulnerabilities"
+#parse the domain url of the website
+#parsed_uri = urlparse(url)
+#g_domain_path = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
 tree = getHtml(url)
 
 
@@ -44,7 +53,7 @@ listPerson = etree.SubElement(teiHeader,'listPerson')
 ####
 person = etree.SubElement(listPerson,'person')
 #person.set("xml:id",tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/a/text()")[0])
-person.attrib[etree.QName("http://www.w3.org/XML/1998/namespace","id")]=tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/a/text()")[0]
+person.attrib[etree.QName(g_xml_namespace,"id")]=tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/a/text()")[0]
 person.set('url',tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/a/@href")[0])
 #####
 signatureContent = etree.SubElement(person,'signatureContent')
@@ -56,13 +65,20 @@ num = etree.SubElement(p,'num')
 num.text = tree.xpath(".//td[@class='post-signature owner']//span[@class='reputation-score']/text()")[0]
 num.tail = "Number of Gold Badges: "
 num = etree.SubElement(p,'num')
-num.text = tree.xpath("//td[@class='post-signature owner']//span[@class='badgecount']/text()")[0]
+num.text = tree.xpath(".//td[@class='post-signature owner']//span[@class='badgecount']/text()")[0]
 num.tail = "Number of Silver Badges: "
 num = etree.SubElement(p,'num')
-num.text = tree.xpath("//td[@class='post-signature owner']//span[@class='badgecount']/text()")[1]
+num.text = tree.xpath(".//td[@class='post-signature owner']//span[@class='badgecount']/text()")[1]
 num.tail = "Number of Bronze Badges: "
 num = etree.SubElement(p,'num')
-num.text = tree.xpath("//td[@class='post-signature owner']//span[@class='badgecount']/text()")[2]
+num.text = tree.xpath(".//td[@class='post-signature owner']//span[@class='badgecount']/text()")[2]
+####
+answers_person = tree.xpath(".//div[@id='answers']//div[@class='user-details']")
+
+for i in answers_person:
+	person = etree.SubElement(listPerson,'person')
+	person.attrib[etree.QName(g_xml_namespace,"id")] = i.xpath(".//a/text()")[0]
+	person.attrib["url"] = i.xpath(".//a/@href")[0]
 
 
 
