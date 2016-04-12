@@ -25,8 +25,6 @@ url = raw_input("Please enter the url to the site: \n") or "http://stackoverflow
 #parsed_uri = urlparse(url)
 #g_domain_path = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
 tree = getHtml(url)
-
-
 # create basic POS XML structure
 #
 TEI = etree.Element('TEI')
@@ -181,5 +179,5 @@ for i in tree.xpath(".//div[@id='answers']//div[@class='answer accepted-answer' 
 		p.text =" ".join(j.xpath(".//span[@class='comment-copy']/descendant-or-self::*/text()[normalize-space()]"))
 
 # pretty string
-s = etree.tostring(TEI,pretty_print=True)
+s = etree.tostring(TEI,pretty_print=True,encoding='UTF-8')
 saveToFile(s,"test")
