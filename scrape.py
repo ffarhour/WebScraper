@@ -122,6 +122,18 @@ for i in tree.xpath(".//div[@class='question']//td[@class='postcell']//div[@clas
 	tag = etree.SubElement(p,'tag')
 	tag.text = i.xpath("text()")[0]
 	p.insert(1,tag)
+
+####
+moderation = tree.xpath(".//div[@class='question']//td[@class='special-status']")
+if moderation != []: #check if there is a special status on post (e.g. post closed)
+	div = etree.SubElement(body,'div')
+	div.attrib["type"] = "moderator"
+	head = etree.SubElement(div,'head')
+	head.text = " ".join(moderation[0].xpath("div[@class='question-status']//h2/descendant-or-self::*/text()[normalize-space()]"))
+
+
+
+
 # pretty string
 s = etree.tostring(TEI,pretty_print=True)
 saveToFile(s,"test")
