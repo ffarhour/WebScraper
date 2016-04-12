@@ -1,7 +1,6 @@
 from lxml import html
 from lxml import etree
 import requests
-#from urlparse import urlparse #to parse root urls
 
 
 global g_xml_namespace
@@ -103,9 +102,9 @@ div = etree.SubElement(body,'div')
 div.attrib["type"] = "forum"
 #####
 post = etree.SubElement(div,'post')
-post.attrib["when"] = tree.xpath(".//div[@class='question']//td[@class='post-signature owner']//span[@class='relativetime']/text()")[0]
+post.attrib["when"] = tree.xpath(".//div[@class='question']//td[@class='post-signature owner']//span[@class='relativetime']/@title")[0]
 post.attrib["who"] = tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/a/text()")[0]
-revisedWhen = tree.xpath(".//td[@class='post-signature']//div[@class='user-info ']//span[@class='relativetime']/text()")[0]
+revisedWhen = tree.xpath(".//td[@class='post-signature']//div[@class='user-info ']//span[@class='relativetime']/@title")[0]
 if revisedWhen != "":
 	post.attrib["revisedWhen"] = revisedWhen
 post.attrib["upVote"] = tree.xpath(".//div[@class='question']//td[@class='votecell']//span[@class='vote-count-post ']/text()")[0]
@@ -132,7 +131,7 @@ if moderation != []: #check if there is a special status on post (e.g. post clos
 	head.text = " ".join(moderation[0].xpath("div[@class='question-status']//h2/descendant-or-self::*/text()[normalize-space()]"))
 	#####
 	post = etree.SubElement(div,'post')
-	post.attrib["when"] = moderation[0].xpath("div[@class='question-status']//span[@class='relativetime']/text()")[0]
+	post.attrib["when"] = moderation[0].xpath("div[@class='question-status']//span[@class='relativetime']/@title")[0]
 	post.attrib["who"] = moderation[0].xpath("div[@class='question-status']//h2/a/text()")[0]
 	post.text = " ".join(moderation[0].xpath("div[@class='question-status']//p/descendant-or-self::*/text()[normalize-space()]"))
 	####
@@ -143,7 +142,7 @@ if moderation != []: #check if there is a special status on post (e.g. post clos
 		#####
 		post = etree.SubElement(div,'post')
 		post.attrib["who"] = i.xpath(".//a[@class='comment-user' or @class='comment-user owner']/text()")[0]
-		post.attrib["when"] = i.xpath(".//span[@class='relativetime-clean']/text()")[0]
+		post.attrib["when"] = i.xpath(".//span[@class='relativetime-clean']/@title")[0]
 		post.attrib["indentLevel"] = "1"
 		######
 		p = etree.SubElement(post,'p')
@@ -156,7 +155,7 @@ for i in tree.xpath(".//div[@id='answers']//div[@class='answer accepted-answer' 
 	#####
 	post = etree.SubElement(div,'post')
 	post.attrib["who"] = i.xpath(".//td[@class='answercell']//div[@class='user-details']/a/text()")[0]
-	post.attrib["when"] =i.xpath(".//td[@class='answercell']//div[@class='user-action-time']/span[@class='relativetime']/text()")[0]
+	post.attrib["when"] =i.xpath(".//td[@class='answercell']//div[@class='user-action-time']/span[@class='relativetime']/@title")[0]
 	post.attrib["upVote"] = i.xpath(".//td[@class='votecell']//span[@class='vote-count-post ']/text()")[0]
 	if(i.xpath("./@class")[0]=="answer accepted-answer"):
 		post.attrib["accepted"] = "accepted"
@@ -172,7 +171,7 @@ for i in tree.xpath(".//div[@id='answers']//div[@class='answer accepted-answer' 
 		#####
 		post = etree.SubElement(div,'post')
 		post.attrib["who"] = j.xpath(".//a[@class='comment-user' or @class='comment-user owner']/text()")[0]
-		post.attrib["when"] = j.xpath(".//span[@class='relativetime-clean']/text()")[0]
+		post.attrib["when"] = j.xpath(".//span[@class='relativetime-clean']/@title")[0]
 		post.attrib["indentLevel"] = "1"
 		######
 		p = etree.SubElement(post,'p')
