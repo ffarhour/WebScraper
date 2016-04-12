@@ -79,8 +79,44 @@ for i in answers_person:
 	person = etree.SubElement(listPerson,'person')
 	person.attrib[etree.QName(g_xml_namespace,"id")] = i.xpath(".//a/text()")[0]
 	person.attrib["url"] = i.xpath(".//a/@href")[0]
-
-
+	#####
+	signatureContent = etree.SubElement(person,'signatureContent')
+	######
+	p = etree.SubElement(signatureContent,'p')
+	p.text = "Reputation: "
+	#######
+	num = etree.SubElement(p,'num')
+	num.text = i.xpath(".//span[@class='reputation-score']/text()")[0]
+	num.tail = "Number of Gold Badges: "
+	num = etree.SubElement(p,'num')
+	num.text = i.xpath(".//span[@class='badgecount']/text()")[0]
+	num.tail = "Number of Silver Badges: "
+	num = etree.SubElement(p,'num')
+	num.text = i.xpath(".//span[@class='badgecount']/text()")[1]
+	num.tail = "Number of Bronze Badges: "
+	num = etree.SubElement(p,'num')
+	num.text = i.xpath(".//span[@class='badgecount']/text()")[2]
+##
+text = etree.SubElement(TEI,'text')
+###
+body = etree.SubElement(text,'body')
+####
+div = etree.SubElement(body,'div')
+div.attrib["type"] = "forum"
+#####
+post = etree.SubElement(div,'post')
+post.attrib["when"] = tree.xpath(".//div[@class='question']//td[@class='post-signature owner']//span[@class='relativetime']/text()")[0]
+post.attrib["who"] = tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/a/text()")[0]
+revisedWhen = tree.xpath(".//td[@class='post-signature']//div[@class='user-info ']//span[@class='relativetime']/text()")[0]
+if revisedWhen != "":
+	post.attrib["revisedWhen"] = revisedWhen
+post.attrib["upVote"] = tree.xpath(".//div[@class='question']//td[@class='votecell']//span[@class='vote-count-post ']/text()")[0]
+post.attrib["accepted"] = tree.xpath(".//div[@class='question']//td[@class='votecell']//a[@class='star-off']/text()")[0]
+p = etree.SubElement(post,'p')
+p.text = ""
+for i in tree.xpath(".//div[@class='question']//td[@class='postcell']//div[@class='post-text']//p"): #loop to get full post text
+	for j in i.xpath("descendant-or-self::text()"): #decendant-or-self gets all text, even with br elements present
+		p.text += j
 
 # pretty string
 s = etree.tostring(TEI,pretty_print=True)
