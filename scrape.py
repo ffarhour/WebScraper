@@ -130,9 +130,20 @@ if moderation != []: #check if there is a special status on post (e.g. post clos
 	div.attrib["type"] = "moderator"
 	head = etree.SubElement(div,'head')
 	head.text = " ".join(moderation[0].xpath("div[@class='question-status']//h2/descendant-or-self::*/text()[normalize-space()]"))
-
-
-
+	post = etree.SubElement(div,'post')
+	post.attrib["when"] = moderation[0].xpath("div[@class='question-status']//span[@class='relativetime']/text()")[0]
+	post.attrib["who"] = moderation[0].xpath("div[@class='question-status']//h2/a/text()")[0]
+	post.text = moderation[0].xpath("div[@class='question-status']//p/descendant-or-self::text()")[0]
+	####
+	for i in tree.xpath(".//div[@class='question']//div[@class='comments ']//tr[@class='comment ']"):
+		div = etree.SubElement(body,'div')
+		div.attrib["type"] = "response"
+		post = etree.SubElement(div,'post')
+		post.attrib["who"] = i.xpath(".//a[@class='comment-user' or @class='comment-user owner']/text()")[0]
+		post.attrib["when"] = i.xpath(".//span[@class='relativetime-clean']/text()")[0]
+		post.attrib["indentLevel"] = "1"
+		p = etree.SubElement(post,'p')
+		p.text = i.xpath(".//span[@class='comment-copy']/text()")[0]
 
 # pretty string
 s = etree.tostring(TEI,pretty_print=True)
