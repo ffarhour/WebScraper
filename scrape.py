@@ -126,24 +126,59 @@ for i in tree.xpath(".//div[@class='question']//td[@class='postcell']//div[@clas
 ####
 moderation = tree.xpath(".//div[@class='question']//td[@class='special-status']")
 if moderation != []: #check if there is a special status on post (e.g. post closed)
+	####
 	div = etree.SubElement(body,'div')
 	div.attrib["type"] = "moderator"
+	#####
 	head = etree.SubElement(div,'head')
 	head.text = " ".join(moderation[0].xpath("div[@class='question-status']//h2/descendant-or-self::*/text()[normalize-space()]"))
+	#####
 	post = etree.SubElement(div,'post')
 	post.attrib["when"] = moderation[0].xpath("div[@class='question-status']//span[@class='relativetime']/text()")[0]
 	post.attrib["who"] = moderation[0].xpath("div[@class='question-status']//h2/a/text()")[0]
-	post.text = moderation[0].xpath("div[@class='question-status']//p/descendant-or-self::text()")[0]
+	post.text = " ".join(moderation[0].xpath("div[@class='question-status']//p/descendant-or-self::*/text()[normalize-space()]"))
 	####
 	for i in tree.xpath(".//div[@class='question']//div[@class='comments ']//tr[@class='comment ']"):
+		####
 		div = etree.SubElement(body,'div')
 		div.attrib["type"] = "response"
+		#####
 		post = etree.SubElement(div,'post')
 		post.attrib["who"] = i.xpath(".//a[@class='comment-user' or @class='comment-user owner']/text()")[0]
 		post.attrib["when"] = i.xpath(".//span[@class='relativetime-clean']/text()")[0]
 		post.attrib["indentLevel"] = "1"
+		######
 		p = etree.SubElement(post,'p')
-		p.text = i.xpath(".//span[@class='comment-copy']/text()")[0]
+		p.text =" ".join(i.xpath(".//span[@class='comment-copy']/descendant-or-self::*/text()[normalize-space()]"))
+####
+for i in tree.xpath(".//div[@id='answers']//div[@class='answer accepted-answer' or @class='answer']"):
+	####
+	div = etree.SubElement(body,'div')
+	div.attrib["type"] = "answer"
+	#####
+	post = etree.SubElement(div,'post')
+	post.attrib["who"] = i.xpath(".//td[@class='answercell']//div[@class='user-details']/a/text()")[0]
+	post.attrib["when"] =i.xpath(".//td[@class='answercell']//div[@class='user-action-time']/span[@class='relativetime']/text()")[0]
+	post.attrib["upVote"] = i.xpath(".//td[@class='votecell']//span[@class='vote-count-post ']/text()")[0]
+	if(i.xpath("./@class")[0]=="answer accepted-answer"):
+		post.attrib["accepted"] = "accepted"
+	######
+	p = etree.SubElement(post,'p')
+	p.text =" ".join(i.xpath(".//td[@class='answercell']//div[@class='post-text']/p/descendant-or-self::*/text()[normalize-space()]"))
+
+	####
+	for j in i.xpath(".//div[@class='comments ']//tr[@class='comment ']"):
+		####
+		div = etree.SubElement(body,'div')
+		div.attrib["type"] = "response"
+		#####
+		post = etree.SubElement(div,'post')
+		post.attrib["who"] = j.xpath(".//a[@class='comment-user' or @class='comment-user owner']/text()")[0]
+		post.attrib["when"] = j.xpath(".//span[@class='relativetime-clean']/text()")[0]
+		post.attrib["indentLevel"] = "1"
+		######
+		p = etree.SubElement(post,'p')
+		p.text =" ".join(j.xpath(".//span[@class='comment-copy']/descendant-or-self::*/text()[normalize-space()]"))
 
 # pretty string
 s = etree.tostring(TEI,pretty_print=True)
