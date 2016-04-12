@@ -117,7 +117,11 @@ p.text = ""
 for i in tree.xpath(".//div[@class='question']//td[@class='postcell']//div[@class='post-text']//p"): #loop to get full post text
 	for j in i.xpath("descendant-or-self::text()"): #decendant-or-self gets all text, even with br elements present
 		p.text += j
-
+p.tail = ""
+for i in tree.xpath(".//div[@class='question']//td[@class='postcell']//div[@class='post-taglist']//a[@rel='tag']"):
+	tag = etree.SubElement(p,'tag')
+	tag.text = i.xpath("text()")[0]
+	p.insert(1,tag)
 # pretty string
 s = etree.tostring(TEI,pretty_print=True)
 saveToFile(s,"test")
