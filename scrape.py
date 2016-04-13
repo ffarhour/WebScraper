@@ -1,6 +1,7 @@
 from lxml import html
 from lxml import etree
 import requests
+import os.path
 
 
 global g_xml_namespace
@@ -8,9 +9,14 @@ g_xml_namespace = "http://www.w3.org/XML/1998/namespace"
 
 #function to save to file
 def saveToFile(xml, filename):
-	f = open(filename+".xml", 'w')
+	#increment name no. if already exists
+	n = 0
+	while(os.path.isfile(filename + str(n) + ".xml")==True):
+		n = n+1
+	f = open(filename+str(n)+".xml", 'w')
 	f.write(xml)
 	f.close()
+	print("All done! Filename: "+ filename + str(n) + ".xml")
 
 def getHtml(url):
 	page = requests.get(url)
@@ -21,8 +27,6 @@ def getHtml(url):
 #fetch html page
 url = raw_input("Please enter the url to the site: \n") or "http://stackoverflow.com/questions/138175/dotnetnuke-vulnerabilities"
 #parse the domain url of the website
-#parsed_uri = urlparse(url)
-#g_domain_path = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
 tree = getHtml(url)
 # create basic POS XML structure
 #
@@ -62,13 +66,26 @@ num = etree.SubElement(p,'num')
 num.text = tree.xpath(".//td[@class='post-signature owner']//span[@class='reputation-score']/text()")[0]
 num.tail = "Number of Gold Badges: "
 num = etree.SubElement(p,'num')
-num.text = tree.xpath(".//td[@class='post-signature owner']//span[@class='badgecount']/text()")[0]
+k = 0
+if(tree.xpath(".//td[@class='post-signature owner']//span[@class='badge1']")!=[]): #if statement to check whether person has these badges.
+	num.text = tree.xpath(".//td[@class='post-signature owner']//span[@class='badgecount']/text()")[k]
+	k = k+1
+else:
+	num.text = str(0)
 num.tail = "Number of Silver Badges: "
 num = etree.SubElement(p,'num')
-num.text = tree.xpath(".//td[@class='post-signature owner']//span[@class='badgecount']/text()")[1]
+if(tree.xpath(".//td[@class='post-signature owner']//span[@class='badge2']")!=[]): #if statement to check whether person has these badges.
+	num.text = tree.xpath(".//td[@class='post-signature owner']//span[@class='badgecount']/text()")[k]
+	k = k+1
+else:
+	num.text = str(0)
 num.tail = "Number of Bronze Badges: "
 num = etree.SubElement(p,'num')
-num.text = tree.xpath(".//td[@class='post-signature owner']//span[@class='badgecount']/text()")[2]
+if(tree.xpath(".//td[@class='post-signature owner']//span[@class='badge2']")!=[]): #if statement to check whether person has these badges.
+	num.text = tree.xpath(".//td[@class='post-signature owner']//span[@class='badgecount']/text()")[k]
+	k = k+1
+else:
+	num.text = str(0)
 ####
 answers_person = tree.xpath(".//div[@id='answers']//div[@class='user-details']")
 
@@ -104,9 +121,9 @@ div.attrib["type"] = "forum"
 post = etree.SubElement(div,'post')
 post.attrib["when"] = tree.xpath(".//div[@class='question']//td[@class='post-signature owner']//span[@class='relativetime']/@title")[0]
 post.attrib["who"] = tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/a/text()")[0]
-revisedWhen = tree.xpath(".//td[@class='post-signature']//div[@class='user-info ']//span[@class='relativetime']/@title")[0]
-if revisedWhen != "":
-	post.attrib["revisedWhen"] = revisedWhen
+revisedWhen = tree.xpath(".//td[@class='post-signature']//div[@class='user-info ']//span[@class='relativetime']/@title")
+if revisedWhen != []:
+	post.attrib["revisedWhen"] = revisedWhen[0]
 post.attrib["upVote"] = tree.xpath(".//div[@class='question']//td[@class='votecell']//span[@class='vote-count-post ']/text()")[0]
 post.attrib["accepted"] = tree.xpath(".//div[@class='question']//td[@class='votecell']//a[@class='star-off']/text()")[0]
 p = etree.SubElement(post,'p')
@@ -179,4 +196,4 @@ for i in tree.xpath(".//div[@id='answers']//div[@class='answer accepted-answer' 
 
 # pretty string
 s = etree.tostring(TEI,pretty_print=True,encoding='UTF-8')
-saveToFile(s,"test")
+saveToFile(s,"post")
