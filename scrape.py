@@ -88,28 +88,43 @@ else:
 	num.text = str(0)
 ####
 answers_person = tree.xpath(".//div[@id='answers']//div[@class='user-details']")
-
 for i in answers_person:
-	person = etree.SubElement(listPerson,'person')
-	person.attrib[etree.QName(g_xml_namespace,"id")] = i.xpath(".//a/text()")[0]
-	person.attrib["url"] = i.xpath(".//a/@href")[0]
-	#####
-	signatureContent = etree.SubElement(person,'signatureContent')
-	######
-	p = etree.SubElement(signatureContent,'p')
-	p.text = "Reputation: "
-	#######
-	num = etree.SubElement(p,'num')
-	num.text = i.xpath(".//span[@class='reputation-score']/text()")[0]
-	num.tail = "Number of Gold Badges: "
-	num = etree.SubElement(p,'num')
-	num.text = i.xpath(".//span[@class='badgecount']/text()")[0]
-	num.tail = "Number of Silver Badges: "
-	num = etree.SubElement(p,'num')
-	num.text = i.xpath(".//span[@class='badgecount']/text()")[1]
-	num.tail = "Number of Bronze Badges: "
-	num = etree.SubElement(p,'num')
-	num.text = i.xpath(".//span[@class='badgecount']/text()")[2]
+	if(i.xpath(".//a/text()")!=[]):
+		person = etree.SubElement(listPerson,'person')
+		person.attrib[etree.QName(g_xml_namespace,"id")] = i.xpath(".//a/text()")[0]
+		person.attrib["url"] = i.xpath(".//a/@href")[0]
+		#####
+		signatureContent = etree.SubElement(person,'signatureContent')
+		######
+		p = etree.SubElement(signatureContent,'p')
+		p.text = "Reputation: "
+		#######
+		num = etree.SubElement(p,'num')
+
+		num.text = i.xpath(".//span[@class='reputation-score']/text()")[0]
+		num.tail = "Number of Gold Badges: "
+		num = etree.SubElement(p,'num')
+		k = 0
+		if(i.xpath(".//span[@class='badge1']")!=[]):
+
+			num.text = i.xpath(".//span[@class='badgecount']/text()")[k]
+			k=k+1
+		else:
+			num.text = str(0)
+		num.tail = "Number of Silver Badges: "
+		num = etree.SubElement(p,'num')
+		if(i.xpath(".//span[@class='badge2']")!=[]):
+			num.text = i.xpath(".//span[@class='badgecount']/text()")[k]
+			k=k+1
+		else:
+			num.text = str(0)
+		num.tail = "Number of Bronze Badges: "
+		num = etree.SubElement(p,'num')
+		if(i.xpath(".//span[@class='badge3']")!=[]):
+			num.text = i.xpath(".//span[@class='badgecount']/text()")[k]
+			k=k+1
+		else:
+			num.text = str(0)
 ##
 text = etree.SubElement(TEI,'text')
 ###
