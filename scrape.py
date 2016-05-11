@@ -7,13 +7,31 @@ import os.path
 global g_xml_namespace
 g_xml_namespace = "http://www.w3.org/XML/1998/namespace"
 
+class bcolors:
+    """Used to implement ANSI colors without the need to remember the numbers.
+    Does not contain any methods. Only contains variables.
+    Usage: simply concatenate bcolors.<color> at the start of string to be printed,
+        and bcolors.ENDC at the end of the string, to color the string with the
+        specified color.
+    """
+
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 #function to save to file
 def saveToFile(xml, filename):
 	#increment name no. if already exists
 	n = 0
 	while(os.path.isfile(filename + str(n) + ".xml")==True):
 		n = n+1
-	f = open(filename+str(n)+".xml", 'w')
+	f = open(filename+str(n)+".xml", 'wb')
 	f.write(xml)
 	f.close()
 	print("All done! Filename: "+ filename + str(n) + ".xml")
@@ -25,7 +43,7 @@ def getHtml(url):
 	return tree
 
 #fetch html page
-url = raw_input("Please enter the url to the site: \n") or "http://stackoverflow.com/questions/138175/dotnetnuke-vulnerabilities"
+url = input("Please enter the url to the site: \n") or "http://stackoverflow.com/questions/138175/dotnetnuke-vulnerabilities"
 #parse the domain url of the website
 tree = getHtml(url)
 # create basic POS XML structure
