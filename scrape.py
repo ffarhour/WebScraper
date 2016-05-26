@@ -24,7 +24,6 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-
 #function to save to file
 def saveToFile(xml, filename):
     #increment name no. if already exists
@@ -41,6 +40,7 @@ def getHtml(url):
     tree = html.fromstring(page.content)
     tree.make_links_absolute(url,resolve_base_href=True)
     return tree
+
 
 #fetch html page
 url = input("Please enter the url to the site: \n") or "http://stackoverflow.com/questions/138175/dotnetnuke-vulnerabilities"
@@ -220,22 +220,24 @@ for i in tree.xpath(".//div[@id='answers']//div[@class='answer accepted-answer' 
     ######
     post.text = ""
     for j in i.xpath(".//td[@class='answercell']//div[@class='post-text']/*"): #loop to get full post text
-        print(j)
-        for k in j.xpath("descendant-or-self::text()"): #decendant-or-self gets all text, even with br elements present #change text to node(), then iterate through it
-            #for l in k.xpath("text()"):
-            print(k)
-            print(j.xpath("text()"))
-            print(j.xpath("descendant-or-self::node()"))
-            if(j.xpath("name()")=="pre"):   #if tag is 'pre' then get all text from children and put it under code tag. Otherwise just use the tag name of iterator i
-                p = etree.SubElement(post,"code")
-            else:
-                print(j.xpath("name()"))
-                p = etree.SubElement(post,j.xpath("name()"))
-            p.text = ""
-            #print(k.xpath("text()"))
-            p.text += k
-            p.tail = ""
-            #post.text += i
+        print(etree.tostring(j,encoding='utf-8',method="html").decode('utf-8','ignore'))
+        post.text += etree.tostring(j,encoding='utf-8',method="html").decode('utf-8','ignore')
+        # print(j.xpath("descendant-or-self::text()"))
+        # for k in j.xpath("descendant-or-self::text()"): #decendant-or-self gets all text, even with br elements present #change text to node(), then iterate through it
+        #     #for l in k.xpath("text()"):
+        #     print(k)
+        #     print(j.xpath("text()"))
+        #     print(j.xpath("string(descendant-or-self::node())"))
+        #     if(j.xpath("name()")=="pre"):   #if tag is 'pre' then get all text from children and put it under code tag. Otherwise just use the tag name of iterator i
+        #         p = etree.SubElement(post,"code")
+        #     else:
+        #         print(j.xpath("name()"))
+        #         p = etree.SubElement(post,j.xpath("name()"))
+        #     p.text = ""
+        #     #print(k.xpath("text()"))
+        #     p.text += k
+        #     p.tail = ""
+        #     #post.text += i
     post.tail = ""
 
     #p = etree.SubElement(post,'p')
