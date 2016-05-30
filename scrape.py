@@ -1,6 +1,5 @@
 from lxml import html
 from lxml import etree
-import requests
 import os.path
 
 
@@ -36,15 +35,42 @@ def saveToFile(xml, filename):
     print("All done! Filename: "+ filename + str(n) + ".xml")
 
 def getHtml(url):
+    import requests
     page = requests.get(url)
+    requests.post(url)
     tree = html.fromstring(page.content)
+    tree.make_links_absolute(url,resolve_base_href=True)
+    return tree
+
+def getHTMLwithComments(url):
+    from selenium import webdriver
+    #initialize firefox webdriver
+    driver = webdriver.Firefox()
+    #fetch url
+    driver.get(url)
+    #http://selenium-python.readthedocs.io/locating-elements.html?highlight=find_element
+    #http://stackoverflow.com/questions/27966080/how-to-simulate-mouse-click-on-blank-area-in-website-by-selenium-ide
+    #click on all "show comments" links to show all comments
+    for element in driver.find_elements_by_xpath(".//a[@title='expand to show all comments on this post' and string-length(text()) > 0]"):
+        element.click()
+    #http://stackoverflow.com/questions/22739514/how-to-get-html-with-javascript-rendered-sourcecode-by-using-selenium
+    #sleep for 5 seconds
+    from time import sleep # this should go at the top of the file
+    sleep(5)
+    #get innerHTML by using js
+    htmlpage = driver.execute_script("return document.getElementsByTagName('html')[0].innerHTML")
+    #encode in utf-8
+    text = htmlpage.encode("utf-8")
+    driver.close()
+    tree = html.fromstring(text)
     tree.make_links_absolute(url,resolve_base_href=True)
     return tree
 
 #fetch html page
 url = input("Please enter the url to the site: \n") or "http://stackoverflow.com/questions/138175/dotnetnuke-vulnerabilities"
 #parse the domain url of the website
-tree = getHtml(url)
+#tree = getHtml(url)
+tree = getHTMLwithComments(url)
 # create basic POS XML structure
 #
 TEI = etree.Element('TEI')
