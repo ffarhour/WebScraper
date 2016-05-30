@@ -30,7 +30,7 @@ def saveToFile(xml, filename):
     n = 0
     while(os.path.isfile(filename + str(n) + ".xml")==True):
         n = n+1
-    f = open(filename+str(n)+".xml", 'wb')
+    f = open(filename+str(n)+".xml", 'w')
     f.write(xml)
     f.close()
     print("All done! Filename: "+ filename + str(n) + ".xml")
@@ -40,40 +40,6 @@ def getHtml(url):
     tree = html.fromstring(page.content)
     tree.make_links_absolute(url,resolve_base_href=True)
     return tree
-
-
-
-##
-# Removes HTML or XML character references and entities from a text string.
-#
-# @param text The HTML (or XML) source text.
-# @return The plain text, as a Unicode string, if necessary.
-
-def unescape(text):
-    # import re, htmlentitydefs
-    # def fixup(m):
-    #     text = m.group(0)
-    #     if text[:2] == "&#":
-    #         # character reference
-    #         try:
-    #             if text[:3] == "&#x":
-    #                 return unichr(int(text[3:-1], 16))
-    #             else:
-    #                 return unichr(int(text[2:-1]))
-    #         except ValueError:
-    #             pass
-    #     else:
-    #         # named entity
-    #         try:
-    #             text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
-    #         except KeyError:
-    #             pass
-    #     return text # leave as is
-    # return re.sub("&#?\w+;", fixup, text)
-    from html import unescape
-    #h = HTMLParser.HTMLParser()
-    print(unescape(text))
-    return unescape(text)
 
 #fetch html page
 url = input("Please enter the url to the site: \n") or "http://stackoverflow.com/questions/138175/dotnetnuke-vulnerabilities"
@@ -199,15 +165,11 @@ for i in tree.xpath(".//div[@class='question']//td[@class='postcell']//div[@clas
     tag.text = i.xpath("text()")[0]
     post.insert(1,tag)
 for i in tree.xpath(".//div[@class='question']//td[@class='postcell']//div[@class='post-text']/*"): #loop to get full post text
+    p = etree.SubElement(post,"p")
+    p.text = ""
     for j in i.xpath("descendant-or-self::text()"): #decendant-or-self gets all text, even with br elements present
-        if(i.xpath("name()")=="pre"):   #if tag is 'pre' then get all text from children and put it under code tag. Otherwise just use the tag name of iterator i
-            p = etree.SubElement(post,"code")
-        else:
-            p = etree.SubElement(post,i.xpath("name()"))
-        p.text = ""
         p.text += j
-        p.tail = ""
-        #post.text += i
+    p.tail = ""
 post.tail = ""
 
 
@@ -252,25 +214,13 @@ for i in tree.xpath(".//div[@id='answers']//div[@class='answer accepted-answer' 
         post.attrib["accepted"] = "accepted"
     ######
     post.text = ""
+    #######
+    p = etree.SubElement(post,"p") #p tag for the text of the post
+    p.text = ""
     for j in i.xpath(".//td[@class='answercell']//div[@class='post-text']/*"): #loop to get full post text
-        print(etree.tostring(j,encoding='ascii',method="html").decode('utf-8','ignore'))
-        post.text += unescape(etree.tostring(j,encoding='ascii',method="html").decode('utf-8','ignore'))
-        # print(j.xpath("descendant-or-self::text()"))
-        # for k in j.xpath("descendant-or-self::text()"): #decendant-or-self gets all text, even with br elements present #change text to node(), then iterate through it
-        #     #for l in k.xpath("text()"):
-        #     print(k)
-        #     print(j.xpath("text()"))
-        #     print(j.xpath("string(descendant-or-self::node())"))
-        #     if(j.xpath("name()")=="pre"):   #if tag is 'pre' then get all text from children and put it under code tag. Otherwise just use the tag name of iterator i
-        #         p = etree.SubElement(post,"code")
-        #     else:
-        #         print(j.xpath("name()"))
-        #         p = etree.SubElement(post,j.xpath("name()"))
-        #     p.text = ""
-        #     #print(k.xpath("text()"))
-        #     p.text += k
-        #     p.tail = ""
-        #     #post.text += i
+        for k in j.xpath("descendant-or-self::text()"): #decendant-or-self gets all text, even with br elements present
+            p.text += k
+    p.tail = ""
     post.tail = ""
 
     #p = etree.SubElement(post,'p')
@@ -292,9 +242,9 @@ for i in tree.xpath(".//div[@id='answers']//div[@class='answer accepted-answer' 
 
 # pretty string
 s = etree.tostring(TEI,pretty_print=True,encoding='utf-8')
-# s_xml = etree.fromstring(s)
-# from lxml.html import clean
-# s_xml = clean_html(s_xml)
-# result = lxml.html.tostring(s_xml, encoding="ascii")
-# print(result)
-saveToFile(s,"post")
+s = s.decode()
+#Use html unencode method to convert all named and numeric character references (e.g. &gt;, &#62;, &x3e;) in the string s to the corresponding unicode characters.
+import html as HTMLParser
+s_new = HTMLParser.unescape(s)
+#save the string to file
+saveToFile(s_new,"post")
