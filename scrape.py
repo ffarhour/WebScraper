@@ -200,6 +200,19 @@ for i in tree.xpath(".//div[@class='question']//td[@class='postcell']//div[@clas
         p.text += j
     p.tail = ""
 post.tail = ""
+####
+for j in tree.xpath(".//div[@id='question']//div[@class='comments ']//tr[@class='comment ']"):
+    ####
+    div = etree.SubElement(body,'div')
+    div.attrib["type"] = "response"
+    #####
+    post = etree.SubElement(div,'post')
+    post.attrib["who"] = j.xpath(".//a[@class='comment-user' or @class='comment-user owner']/text()")[0]
+    post.attrib["when"] = j.xpath(".//span[@class='relativetime-clean']/@title")[0]
+    post.attrib["indentLevel"] = "1"
+    ######
+    p = etree.SubElement(post,'p')
+    p.text =" ".join(j.xpath(".//span[@class='comment-copy']/descendant-or-self::*/text()[normalize-space()]"))
 
 
 ####
