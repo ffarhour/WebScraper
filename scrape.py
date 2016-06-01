@@ -236,8 +236,21 @@ for i in tree.xpath(".//div[@id='answers']//div[@class='answer accepted-answer' 
     div.attrib["type"] = "answer"
     #####
     post = etree.SubElement(div,'post')
-    post.attrib["who"] = i.xpath(".//td[@class='answercell']//div[@class='user-details']/a/text()")[0]
-    post.attrib["when"] =i.xpath(".//td[@class='answercell']//div[@class='user-action-time']/span[@class='relativetime']/@title")[0]
+    #post.attrib["who"] = i.xpath(".//td[@class='answercell']//div[@class='user-details']/a/text()")[0]
+    revisedBy = i.xpath(".//td[@class='answercell']//td[@class='post-signature']//div[@class='user-details']/a/text()")
+    if(len(revisedBy)>1):
+        post.attrib["revisedBy"] = revisedBy[0]
+        post.attrib["who"] = revisedBy[1]
+    else:
+        post.attrib["who"] = revisedBy[0]
+
+    revisedWhen = i.xpath(".//td[@class='answercell']//div[@class='user-action-time']//span[@class='relativetime']//@title")
+    if len(revisedWhen)>1:
+        post.attrib["revisedWhen"] = revisedWhen[0]
+        post.attrib["when"] = revisedWhen[1]
+    else:
+        post.attrib["when"] = revisedWhen[0]
+    #post.attrib["when"] =i.xpath(".//td[@class='answercell']//div[@class='user-action-time']/span[@class='relativetime']/@title")[0]
     post.attrib["upVote"] = i.xpath(".//td[@class='votecell']//span[@class='vote-count-post ']/text()")[0]
     if(i.xpath("./@class")[0]=="answer accepted-answer"):
         post.attrib["accepted"] = "accepted"
