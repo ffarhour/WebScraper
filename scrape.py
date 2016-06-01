@@ -179,7 +179,10 @@ div.attrib["type"] = "forum"
 post = etree.SubElement(div,'post')
 post.attrib["when"] = tree.xpath(".//div[@class='question']//td[@class='post-signature owner']//span[@class='relativetime']/@title")[0]
 post.attrib["who"] = tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/a/text()")[0]
-revisedWhen = tree.xpath(".//td[@class='post-signature']//div[@class='user-info ']//span[@class='relativetime']/@title")
+revisedBy = tree.xpath(".//div[@class='question']//td[@class='post-signature']//div[contains(@class,'user-info ')]//div[@class='user-details']/a/text()")
+if revisedBy != []:
+    post.attrib["revisedBy"] = revisedBy[0]
+revisedWhen = tree.xpath(".//div[@class='question']//td[@class='post-signature']//div[contains(@class,'user-info ')]//span[@class='relativetime']/@title")
 if revisedWhen != []:
     post.attrib["revisedWhen"] = revisedWhen[0]
 post.attrib["upVote"] = tree.xpath(".//div[@class='question']//td[@class='votecell']//span[@class='vote-count-post ']/text()")[0]
