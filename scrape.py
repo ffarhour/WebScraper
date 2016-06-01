@@ -178,7 +178,11 @@ div.attrib["type"] = "forum"
 #####
 post = etree.SubElement(div,'post')
 post.attrib["when"] = tree.xpath(".//div[@class='question']//td[@class='post-signature owner']//span[@class='relativetime']/@title")[0]
-post.attrib["who"] = tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/a/text()")[0]
+who = tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/a/text()")
+if(who!=[]):
+    post.attrib["who"] = who[0]
+else:
+    post.attrib["who"] = tree.xpath(".//td[@class='post-signature owner']//div[@class='user-details']/text()")
 revisedBy = tree.xpath(".//div[@class='question']//td[@class='post-signature']//div[contains(@class,'user-info ')]//div[@class='user-details']/a/text()")
 if revisedBy != []:
     post.attrib["revisedBy"] = revisedBy[0]
@@ -241,7 +245,7 @@ if moderation != []: #check if there is a special status on post (e.g. post clos
         div.attrib["type"] = "response"
         #####
         post = etree.SubElement(div,'post')
-        post.attrib["who"] = i.xpath(".//a[@class='comment-user' or @class='comment-user owner']/text()")[0]
+        post.attrib["who"] = i.xpath(".//*[@class='comment-user' or @class='comment-user owner']/text()")[0]
         post.attrib["when"] = i.xpath(".//span[@class='relativetime-clean']/@title")[0]
         post.attrib["indentLevel"] = "1"
         ######
@@ -256,11 +260,14 @@ for i in tree.xpath(".//div[@id='answers']//div[@class='answer accepted-answer' 
     post = etree.SubElement(div,'post')
     #post.attrib["who"] = i.xpath(".//td[@class='answercell']//div[@class='user-details']/a/text()")[0]
     revisedBy = i.xpath(".//td[@class='answercell']//td[@class='post-signature']//div[@class='user-details']/a/text()")
+    print(revisedBy)
     if(len(revisedBy)>1):
         post.attrib["revisedBy"] = revisedBy[0]
         post.attrib["who"] = revisedBy[1]
-    else:
+    elif(len(revisedBy)==1) :
         post.attrib["who"] = revisedBy[0]
+    else:
+        post.attrib["who"] = i.xpath(".//td[@class='answercell']//td[@class='post-signature']//div[@class='user-details']/text()")[0]
 
     revisedWhen = i.xpath(".//td[@class='answercell']//div[@class='user-action-time']//span[@class='relativetime']//@title")
     if len(revisedWhen)>1:
@@ -293,7 +300,7 @@ for i in tree.xpath(".//div[@id='answers']//div[@class='answer accepted-answer' 
         div.attrib["type"] = "response"
         #####
         post = etree.SubElement(div,'post')
-        post.attrib["who"] = j.xpath(".//a[@class='comment-user' or @class='comment-user owner']/text()")[0]
+        post.attrib["who"] = j.xpath(".//*[@class='comment-user' or @class='comment-user owner']/text()")[0]
         post.attrib["when"] = j.xpath(".//span[@class='relativetime-clean']/@title")[0]
         post.attrib["indentLevel"] = "1"
         #print(j.xpath(".//td[contains(@class,'comment-score')]/descendant-or-self::*/text()[normalize-space()]"))
